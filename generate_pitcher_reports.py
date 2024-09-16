@@ -72,8 +72,11 @@ def plot_pitcher_arm_angle(pitcher_name, pitcher_team, pitcher_data):
     plt.gca().add_patch(rubber)
 
     # Add pitcher information
-    arm_angle = int(pitcher['arm_angle'].iloc[0])
+    avg_arm_angle = pitcher['arm_angle'].mean()
     plt.text(0.5, 0.96, f"{pitcher_name} Arm Angle Plot (All Pitches)", transform=plt.gcf().transFigure, fontsize=18, color="black", weight="bold", ha="center")
+
+    # Display the average arm angle on the plot
+    plt.text(0.5, 0.90, f"Average Arm Angle: {avg_arm_angle:.2f}°", transform=plt.gcf().transFigure, fontsize=14, color="blue", ha="center")
 
     # Add a legend with the pitch types and colors
     handles, labels = ax.get_legend_handles_labels()
