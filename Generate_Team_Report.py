@@ -8,22 +8,48 @@ import matplotlib.patches as patches
 data = pd.read_csv('C:/Users/AlfredoCaraballo/OneDrive - DSSports/Desktop/Arm Angle/filtered_pitcher_data.csv')
 
 # Select the relevant columns
-selected_columns = ['Pitcher', 'PitchType', 'AvgRelheight', 'AvgRelside', 'AvgYT_Relheight', 'AvgYT_Relside', 'shoulder_pos', 'Adj', 'arm_angle', 'PitcherTeam']
+selected_columns = ['Pitcher', 'PitchType', 'AvgRelHeight', 'AvgRelSide', 'AvgRelHeight_yt', 'AvgRelSide_yt', 'shoulder_pos', 'Adj', 'arm_angle', 'PitcherTeam']
 filtered_data = data[selected_columns]
 
-# Function to generate team average report PDF with the graph on the second page
+# Path to the folder containing the logos
+school_logo_folder = 'C:/Users/AlfredoCaraballo/OneDrive - DSSports/Desktop/Arm Angle/SchoolLogo/'
+conference_logo_folder = 'C:/Users/AlfredoCaraballo/OneDrive - DSSports/Desktop/Arm Angle/Logos/'
+
+# Function to try to load both PNG and JPG formats
+def load_image(pdf, path_without_ext, x, y, w):
+    png_path = path_without_ext + '.png'
+    jpg_path = path_without_ext + '.jpg'
+    
+    if os.path.exists(png_path):
+        pdf.image(png_path, x=x, y=y, w=w)
+    elif os.path.exists(jpg_path):
+        pdf.image(jpg_path, x=x, y=y, w=w)
+    else:
+        print(f"Image not found for: {path_without_ext}")
+
+# Function to generate team average report PDF with the graph on the second page and logos
 def generate_team_avg_report(team_name, team_data):
     # Create a new PDF for each team
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    # Add the first page with team data
+    # Add the first page
     pdf.add_page()
-    
-    # Title
+
+    # Path without extension for both PNG and JPG
+    school_logo_base_path = os.path.join(school_logo_folder, team_name)
+    conference_logo_base_path = os.path.join(conference_logo_folder, 'ConferenceLogo')
+
+    # Insert school logo (top left)
+    load_image(pdf, school_logo_base_path, x=10, y=10, w=30)
+
+    # Insert conference logo (top right)
+    load_image(pdf, conference_logo_base_path, x=pdf.w - 40, y=10, w=40)
+
+    # Title (below the logos)
     pdf.set_font('Arial', 'B', 16)
-    pdf.cell(200, 10, f'Team Report: {team_name}', ln=True, align='C')
-    
+    pdf.cell(200, 40, f'Team Report: {team_name}', ln=True, align='C')
+
     # Column names
     pdf.set_font('Arial', 'B', 12)
     pdf.cell(50, 10, 'Pitcher', 1)
@@ -32,14 +58,14 @@ def generate_team_avg_report(team_name, team_data):
     pdf.cell(40, 10, 'Arm Angle', 1)
     pdf.ln()
     
-    # Pitcher averages and plotting (without the graph for now)
+    # Pitcher averages
     pdf.set_font('Arial', '', 12)
     
     for pitcher_name, pitcher_data in team_data.groupby('Pitcher'):
-        avg_relheight = pitcher_data['AvgYT_Relheight'].mean()
-        avg_relside = pitcher_data['AvgYT_Relside'].mean()
+        avg_relheight = pitcher_data['AvgRelHeight_yt'].mean()
+        avg_relside = pitcher_data['AvgRelSide_yt'].mean()
         avg_arm_angle = pitcher_data['arm_angle'].mean()
-        
+
         # Write pitcher averages to the PDF
         pdf.cell(50, 10, pitcher_name, 1)
         pdf.cell(40, 10, f'{avg_relheight:.2f}', 1)
@@ -77,8 +103,8 @@ def plot_team_graph(team_name, team_data):
 
     # Plot data for each pitcher
     for pitcher_name, pitcher_data in team_data.groupby('Pitcher'):
-        avg_relheight = pitcher_data['AvgYT_Relheight'].mean()
-        avg_relside = pitcher_data['AvgYT_Relside'].mean()
+        avg_relheight = pitcher_data['AvgRelHeight_yt'].mean()
+        avg_relside = pitcher_data['AvgRelSide_yt'].mean()
         plt.scatter(avg_relside, avg_relheight, s=100, color=color, label=pitcher_name)
     
     # Add mound and rubber visuals
@@ -123,7 +149,7 @@ def get_team_color(team_name):
     else:
         return 'gray'  # Default color for other teams
 
-# Create combined graph with all pitchers, but only one pitcher per team in the legend
+# Function to create the combined graph for all teams
 def create_combined_graph(filtered_data):
     plt.figure(figsize=(10, 10))
     ax = plt.gca()
@@ -138,8 +164,8 @@ def create_combined_graph(filtered_data):
 
         # Plot data for all pitchers
         for pitcher_name, pitcher_data in team_data.groupby('Pitcher'):
-            avg_relheight = pitcher_data['AvgYT_Relheight'].mean()
-            avg_relside = pitcher_data['AvgYT_Relside'].mean()
+            avg_relheight = pitcher_data['AvgRelHeight_yt'].mean()
+            avg_relside = pitcher_data['AvgRelSide_yt'].mean()
 
             # Add to the legend only for the first pitcher of the team
             if team_name not in teams_in_legend:
@@ -180,3 +206,4 @@ def generate_reports():
 
 # Generate all reports
 generate_reports()
+
