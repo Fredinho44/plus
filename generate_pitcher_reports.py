@@ -8,7 +8,7 @@ import matplotlib.patches as patches
 data = pd.read_csv('C:/Users/AlfredoCaraballo/OneDrive - DSSports/Desktop/Arm Angle/filtered_pitcher_data.csv')
 
 # Select the relevant columns
-selected_columns = ['Pitcher', 'PitchType', 'AvgRelheight', 'AvgRelside', 'AvgYT_Relheight', 'AvgYT_Relside', 'shoulder_pos', 'Adj', 'arm_angle', 'PitcherTeam']
+selected_columns = ['Pitcher', 'PitchType', 'AvgRelHeight', 'AvgRelSide', 'AvgRelHeight_yt', 'AvgRelSide_yt', 'shoulder_pos', 'Adj', 'arm_angle', 'PitcherTeam']
 filtered_data = data[selected_columns]
 
 # Define a color map for each pitch type
@@ -38,13 +38,13 @@ def plot_pitcher_arm_angle(pitcher_name, pitcher_team, pitcher_data):
     # Calculate average shoulder position and min/max for release points
     shoulder_pos_avg = pitcher['shoulder_pos'].mean()
 
-    min_relheight = pitcher['AvgYT_Relheight'].min()
-    max_relheight = pitcher['AvgYT_Relheight'].max()
-    min_relside = pitcher['AvgYT_Relside'].min()
-    max_relside = pitcher['AvgYT_Relside'].max()
+    min_relheight = pitcher['AvgRelHeight_yt'].min()
+    max_relheight = pitcher['AvgRelHeight_yt'].max()
+    min_relside = pitcher['AvgRelSide_yt'].min()
+    max_relside = pitcher['AvgRelSide_yt'].max()
 
-    avg_relheight = pitcher['AvgYT_Relheight'].mean()
-    avg_relside = pitcher['AvgYT_Relside'].mean()
+    avg_relheight = pitcher['AvgRelHeight_yt'].mean()
+    avg_relside = pitcher['AvgRelSide_yt'].mean()
 
     # Set axis limits
     ax.set_xlim(-3, 3)
@@ -60,10 +60,10 @@ def plot_pitcher_arm_angle(pitcher_name, pitcher_team, pitcher_data):
     for pitch_type, color in pitch_colors.items():
         pitch_data = pitcher[pitcher['PitchType'] == pitch_type]
         if not pitch_data.empty:
-            plt.scatter(pitch_data['AvgYT_Relside'], pitch_data['AvgYT_Relheight'], s=150, lw=1.5, edgecolors='k', color=color, alpha=0.7, zorder=3, label=f'{pitch_type} Release Pos')
+            plt.scatter(pitch_data['AvgRelSide_yt'], pitch_data['AvgRelHeight_yt'], s=150, lw=1.5, edgecolors='k', color=color, alpha=0.7, zorder=3, label=f'{pitch_type} Release Pos')
             # Draw line from shoulder to release point
             for i in range(len(pitch_data)):
-                plt.plot([0, pitch_data['AvgYT_Relside'].iloc[i]], [shoulder_pos_avg, pitch_data['AvgYT_Relheight'].iloc[i]], '--', color=color, lw=1, alpha=0.5, zorder=1)
+                plt.plot([0, pitch_data['AvgRelSide_yt'].iloc[i]], [shoulder_pos_avg, pitch_data['AvgRelHeight_yt'].iloc[i]], '--', color=color, lw=1, alpha=0.5, zorder=1)
 
     # Add mound and rubber visuals
     mound = patches.Ellipse((0, 0), width=6, height=1, angle=0, facecolor='brown', edgecolor='black', linewidth=1, zorder=2)
